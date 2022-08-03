@@ -1,0 +1,76 @@
+import java.text.SimpleDateFormat
+
+plugins {
+    id 'org.jetbrains.changelog'
+}
+
+apply plugin: 'org.jetbrains.changelog'
+
+changelog {
+    path = "${project.projectDir}/CHANGELOG.md"
+    header = "${-> version.get()} - ${new SimpleDateFormat("yyyy-MM-dd").format(new Date())}"
+    headerParserRegex = ~/(\d+\.\d+\.\d+.+)/
+    itemPrefix = "-"
+    keepUnreleasedSection = true
+    unreleasedTerm = "Unreleased work"
+    groups = ["Features", "Fixed", "Security"]
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+
+    group 'dk.sunepoulsen.itemployee'
+    version "${project.property('version')}"
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    task allWrappers(type: Wrapper) {
+        gradleVersion = "${project.property('gradle.version')}"
+    }
+
+    dependencies {
+        // Lombok
+        compileOnly 'org.projectlombok:lombok:1.18.24'
+        annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+        // Logging
+        implementation 'ch.qos.logback:logback-classic:1.2.11'
+        implementation 'org.slf4j:log4j-over-slf4j:1.7.36'
+
+        // Spock
+        testImplementation 'org.codehaus.groovy:groovy-all:3.0.12'
+        testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
+        testImplementation 'cglib:cglib-nodep:3.3.0'
+        testImplementation 'org.objenesis:objenesis:3.2'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+project('it-employee-component-tests') {
+    test {
+        onlyIf {
+            project.hasProperty('component-tests')
+        }
+    }
+}
+
+project('it-employee-stress-tests') {
+    test {
+        onlyIf {
+            project.hasProperty('stress-tests')
+        }
+    }
+}

@@ -1,0 +1,19 @@
+# ===================================================================
+#                   General configuration
+# ===================================================================
+
+logging:
+  level:
+    dk.sunepoulsen.itemployee: DEBUG
+
+# ===================================================================
+#                   Spring configuration
+# ===================================================================
+
+spring:
+  datasource:
+    url: 'jdbc:postgresql://postgres:5432/ct'
+    username: 'itemployee-ct'
+    password: 'jukilo90'
+    initialize: false
+    driver-class-name: 'org.postgresql.Driver'
