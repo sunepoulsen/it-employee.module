@@ -1,0 +1,16 @@
+plugins {
+    id 'groovy'
+}
+
+dependencies {
+    // Tech Easy Solutions
+    testImplementation "dk.sunepoulsen.tes:tes-docker-containers:1.0.1-SNAPSHOT"
+    testImplementation "dk.sunepoulsen.tes:tes-jmeter:1.0.1-SNAPSHOT"
+
+    implementation platform("org.testcontainers:testcontainers-bom:1.17.3")
+    testImplementation 'org.testcontainers:testcontainers'
+}
+
+test {
+    systemProperty "stress.test.profile", System.getProperty("stress.test.profile")
+}
