@@ -6,8 +6,8 @@ import dk.sunepoulsen.tes.rest.models.transformations.PaginationTransformations;
 import dk.sunepoulsen.tes.springboot.rest.exceptions.ApiBadRequestException;
 import dk.sunepoulsen.tes.springboot.rest.logic.exceptions.LogicException;
 import dk.sunepoulsen.itemployee.client.rs.model.HolidayModel;
-import dk.sunepoulsen.tes.validation.ModelValidator;
-import dk.sunepoulsen.tes.validation.exceptions.ModelValidateException;
+import dk.sunepoulsen.tes.validation.model.OnCrudCreate;
+import dk.sunepoulsen.tes.validation.model.OnCrudUpdate;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,23 +16,21 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.cfg.defs.NotNullDef;
-import org.hibernate.validator.cfg.defs.NullDef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Slf4j
+@CrossOrigin
 @RestController
 @Tag(name = "Holidays", description = "Management of holidays")
+@Validated
 public class HolidayController {
 
     private final HolidayLogic holidayLogic;
@@ -61,26 +59,18 @@ public class HolidayController {
             ) }
         )
     })
+    @Validated(OnCrudCreate.class)
     public HolidayModel create(
         @RequestBody
         @Parameter(description = "The holiday model to create")
+        @Valid
         HolidayModel model)
     {
         try {
-            ModelValidator.validate(model, HolidayModel.class, mappings -> mappings
-                .field("id")
-                .constraint(new NullDef())
-                .field("name")
-                .constraint(new NotNullDef())
-                .field("date")
-                .constraint(new NotNullDef())
-            );
-
             return holidayLogic.create(model);
         }
-        catch( ModelValidateException ex) {
-            handleModelValidateException(ex);
-            return null;
+        catch( LogicException ex ) {
+            throw ex.mapApiException();
         }
     }
 
@@ -103,11 +93,13 @@ public class HolidayController {
             ) }
         )
     })
-    public PaginationModel<HolidayModel> findAll(Pageable pageable) {
+    public PaginationModel<HolidayModel> findAll(@Valid Pageable pageable) {
         try {
             return PaginationTransformations.toPaginationResult(holidayLogic.findAll(pageable));
         } catch (PropertyReferenceException ex) {
             throw new ApiBadRequestException("sort", "Unknown sort property", ex);
+        } catch (LogicException ex) {
+            throw ex.mapApiException();
         }
     }
 
@@ -137,7 +129,7 @@ public class HolidayController {
             ) }
         )
     })
-    public HolidayModel get(@PathVariable("id") Long id) {
+    public HolidayModel get(@PathVariable("id") @Valid Long id) {
         try {
             return holidayLogic.get(id);
         } catch (IllegalArgumentException ex) {
@@ -173,25 +165,17 @@ public class HolidayController {
             ) }
         )
     })
+    @Validated(OnCrudUpdate.class)
     public HolidayModel patch(
         @PathVariable("id")
             Long id,
         @RequestBody
         @Parameter(description = "The holiday model to create")
+        @Valid
         HolidayModel model)
     {
         try {
-            ModelValidator.validate(model, HolidayModel.class, mappings -> mappings
-                .field("id")
-                .constraint(new NullDef())
-            );
-
             return holidayLogic.patch(id, model);
-        } catch( ModelValidateException ex) {
-            handleModelValidateException(ex);
-            return null;
-        } catch (IllegalArgumentException ex) {
-            throw new ApiBadRequestException("id", ex.getMessage(), ex);
         } catch (LogicException ex) {
             throw ex.mapApiException();
         }
@@ -219,7 +203,7 @@ public class HolidayController {
             ) }
         )
     })
-    public void delete(@PathVariable("id") Long id) {
+    public void delete(@PathVariable("id") @Valid Long id) {
         try {
             holidayLogic.delete(id);
         } catch (IllegalArgumentException ex) {
@@ -227,13 +211,5 @@ public class HolidayController {
         } catch (LogicException ex) {
             throw ex.mapApiException();
         }
-    }
-
-    private void handleModelValidateException(ModelValidateException ex) {
-        ex.getViolations().stream().findFirst().ifPresent(validateViolationModel -> {
-            throw new ApiBadRequestException(validateViolationModel.getParam(), validateViolationModel.getMessage(), ex);
-        });
-
-        throw new ApiBadRequestException("Unknown validation error", ex);
     }
 }

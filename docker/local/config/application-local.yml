@@ -17,3 +17,6 @@ spring:
     password: 'jukilo90'
     initialize: false
     driver-class-name: 'org.postgresql.Driver'
+  liquibase:
+    user: 'it-employee'
+    password: 'jukilo90'

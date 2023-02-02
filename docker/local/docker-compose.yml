@@ -1,13 +1,13 @@
 version: "2"
 services:
   it-employee-db:
-    image: postgres:latest
+    image: postgres:15.1
     environment:
-      - POSTGRES_DB=it-employee
-      - POSTGRES_USER=it-employee
       - POSTGRES_PASSWORD=jukilo90
     ports:
       - "5432"
+    volumes:
+      - "../scripts/postgres/create-it-employee-db.sql:/docker-entrypoint-initdb.d/create-it-employee-db.sql"
 
   it-employee-module:
     image: it-employee-backend-module:1.0.0-SNAPSHOT
