@@ -1,6 +1,6 @@
 package dk.sunepoulsen.itemployee.module.domain.holidays
 
-
+import dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity
 import dk.sunepoulsen.tes.rest.models.ServiceErrorModel
 import dk.sunepoulsen.tes.springboot.rest.exceptions.ApiBadRequestException
 import dk.sunepoulsen.tes.springboot.rest.exceptions.ApiNotFoundException
@@ -52,33 +52,6 @@ class HolidayControllerSpec extends Specification {
             'date is not null' | LocalDate.now()
     }
 
-    @Unroll
-    void "Create holiday returns bad request: #_testcase"() {
-        given:
-            HolidayModel model = new HolidayModel(
-                id: _id,
-                name: _name,
-                date: _date
-            )
-
-        when:
-            sut.create(model)
-
-        then:
-            ApiBadRequestException exception = thrown(ApiBadRequestException)
-            exception.getServiceError().code == _errorCode
-            exception.getServiceError().param == _errorParam
-            exception.getServiceError().message == _errorMessage
-
-            0 * holidayLogic.create(_)
-
-        where:
-            _testcase        | _id  | _name  | _date           | _errorCode | _errorParam | _errorMessage
-            'id is not null' | 10   | 'name' | LocalDate.now() | null       | 'id'        | 'must be null'
-            'name is null'   | null | null   | LocalDate.now() | null       | 'name'      | 'must not be null'
-            'date is null'   | null | 'name' | null            | null       | 'date'      | 'must not be null'
-    }
-
     void "Find all templates with unknown sorting"() {
         given:
             Pageable pageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, 'wrong'))
@@ -95,7 +68,7 @@ class HolidayControllerSpec extends Specification {
 
             0 * holidayLogic.create(_)
             1 * holidayLogic.findAll(pageable) >> {
-                throw new PropertyReferenceException('wrong', ClassTypeInformation.from(dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity.class), [])
+                throw new PropertyReferenceException('wrong', ClassTypeInformation.from(HolidayEntity.class), [])
             }
     }
 
@@ -185,20 +158,6 @@ class HolidayControllerSpec extends Specification {
             'All values'   | null    | null
             'Name is null' | null    | LocalDate.now()
             'Date is null' | 'value' | null
-    }
-
-    void "Patch holiday returns bad request"() {
-        when:
-            sut.patch(5L, new HolidayModel(id: 9L))
-
-        then:
-            ApiBadRequestException exception = thrown(ApiBadRequestException)
-            exception.getServiceError() == new ServiceErrorModel(
-                param: 'id',
-                message: 'must be null'
-            )
-
-            0 * holidayLogic.patch(_, _)
     }
 
     void "Delete holiday returns OK"() {

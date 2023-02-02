@@ -26,6 +26,15 @@ subprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+
+        maven {
+            url "${System.properties['maven.repository.base.url']}/${System.properties['maven.repository.snapshots']}"
+            allowInsecureProtocol = true
+        }
+        maven {
+            url "${System.properties['maven.repository.base.url']}/${System.properties['maven.repository.releases']}"
+            allowInsecureProtocol = true
+        }
     }
 
     java {
@@ -48,9 +57,9 @@ subprojects {
         implementation 'org.slf4j:log4j-over-slf4j:1.7.36'
 
         // Spock
-        testImplementation 'org.codehaus.groovy:groovy-all:3.0.12'
-        testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
-        testImplementation 'cglib:cglib-nodep:3.3.0'
+        testImplementation 'org.codehaus.groovy:groovy-all:3.0.13'
+        testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+        testImplementation 'net.bytebuddy:byte-buddy:1.12.18'
         testImplementation 'org.objenesis:objenesis:3.2'
     }
 

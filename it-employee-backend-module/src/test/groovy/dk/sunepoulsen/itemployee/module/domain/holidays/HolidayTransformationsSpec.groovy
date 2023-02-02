@@ -2,6 +2,7 @@ package dk.sunepoulsen.itemployee.module.domain.holidays
 
 
 import dk.sunepoulsen.itemployee.client.rs.model.HolidayModel
+import dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -23,7 +24,7 @@ class HolidayTransformationsSpec extends Specification {
             )
 
         expect:
-            sut.toEntity(model) == new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity(
+            sut.toEntity(model) == new HolidayEntity(
                 id: model.id,
                 name: model.name,
                 date: model.date
@@ -32,7 +33,7 @@ class HolidayTransformationsSpec extends Specification {
 
     void "Transform entity to model"() {
         given:
-            dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity entity = new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity(
+            HolidayEntity entity = new HolidayEntity(
                 id: 45L,
                 name: 'name',
                 date: LocalDate.now()

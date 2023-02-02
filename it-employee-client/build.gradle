@@ -1,13 +1,48 @@
 plugins {
     id 'groovy'
     id 'java'
+    id 'maven-publish'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = "${System.properties['maven.repository.base.url']}/" + (
+                version ==~ /^\d+\.\d+\.\d+$/ ?
+                    "${System.properties['maven.repository.releases']}" :
+                    "${System.properties['maven.repository.snapshots']}"
+            )
+            allowInsecureProtocol = true
+            credentials {
+                username = "${System.properties['maven.repository.username']}"
+                password = "${System.properties['maven.repository.password']}"
+            }
+        }
+    }
 }
 
 dependencies {
     // Tech Easy Solutions
-    implementation "dk.sunepoulsen.tes:tes-rest-models:1.0.1-SNAPSHOT"
-    implementation "dk.sunepoulsen.tes:tes-rest-integrations:1.0.1-SNAPSHOT"
+    implementation 'dk.sunepoulsen.tes:tes-rest-models:1.0.1-SNAPSHOT'
+    implementation 'dk.sunepoulsen.tes:tes-rest-integrations:1.0.1-SNAPSHOT'
+    implementation 'dk.sunepoulsen.tes:tes-validation:1.0.1-SNAPSHOT'
 
     // Spring Boot
-    implementation "org.springdoc:springdoc-openapi-ui:1.6.9"
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.12'
+
+    // Validation Api
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+
+    // Hibernate Validation
+    testImplementation 'org.hibernate.validator:hibernate-validator:6.2.5.Final'
+    testImplementation 'org.glassfish:javax.el:3.0.0'
+}
+
+javadoc {
+    options.memberLevel = JavadocMemberLevel.PRIVATE
 }

@@ -10,9 +10,9 @@ dependencies {
     implementation "dk.sunepoulsen.tes:tes-rest-models:1.0.1-SNAPSHOT"
     implementation "dk.sunepoulsen.tes:tes-docker-containers:1.0.1-SNAPSHOT"
 
-    implementation platform("org.testcontainers:testcontainers-bom:1.17.3")
+    implementation platform('org.testcontainers:testcontainers-bom:1.17.4')
     testImplementation 'org.testcontainers:testcontainers'
 
     // Database Drivers
-    implementation "org.postgresql:postgresql:42.4.0"
+    implementation 'org.postgresql:postgresql:42.5.0'
 }
