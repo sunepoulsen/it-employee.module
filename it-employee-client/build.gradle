@@ -2,7 +2,11 @@ plugins {
     id 'groovy'
     id 'java'
     id 'maven-publish'
+    id 'org.sonarqube'
+    id 'jacoco'
 }
+
+apply plugin: 'org.owasp.dependencycheck'
 
 publishing {
     publications {
@@ -46,3 +50,29 @@ dependencies {
 javadoc {
     options.memberLevel = JavadocMemberLevel.PRIVATE
 }
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
+dependencyCheck {
+    format='ALL'
+}
+
+sonarqube {
+    properties {
+        property 'sonar.dependencyCheck.severity.blocker', '9.0'
+        property 'sonar.dependencyCheck.severity.critical', '7.0'
+        property 'sonar.dependencyCheck.severity.major', '4.0'
+        property 'sonar.dependencyCheck.severity.minor', '0.0'
+
+        property 'sonar.dependencyCheck.jsonReportPath', 'build/reports/dependency-check-report.json'
+        property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+    }
+}
+
+tasks.jacocoTestReport.dependsOn tasks.test
+tasks.sonarqube.dependsOn tasks.dependencyCheckAnalyze
+tasks.sonarqube.dependsOn tasks.jacocoTestReport

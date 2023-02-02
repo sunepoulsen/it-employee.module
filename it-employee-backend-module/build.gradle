@@ -3,8 +3,12 @@ plugins {
     id 'java'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
+    id 'org.sonarqube'
+    id 'jacoco'
     id 'com.google.cloud.tools.jib'
 }
+
+apply plugin: 'org.owasp.dependencycheck'
 
 dependencies {
     // Template Dependencies
@@ -61,4 +65,29 @@ javadoc {
     options.memberLevel = JavadocMemberLevel.PRIVATE
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
+dependencyCheck {
+    format='ALL'
+}
+
+sonarqube {
+    properties {
+        property 'sonar.dependencyCheck.severity.blocker', '9.0'
+        property 'sonar.dependencyCheck.severity.critical', '7.0'
+        property 'sonar.dependencyCheck.severity.major', '4.0'
+        property 'sonar.dependencyCheck.severity.minor', '0.0'
+
+        property 'sonar.dependencyCheck.jsonReportPath', 'build/reports/dependency-check-report.json'
+        property 'sonar.dependencyCheck.htmlReportPath', 'build/reports/dependency-check-report.html'
+    }
+}
+
+tasks.jacocoTestReport.dependsOn tasks.test
+tasks.sonarqube.dependsOn tasks.dependencyCheckAnalyze
+tasks.sonarqube.dependsOn tasks.jacocoTestReport
 tasks.build.dependsOn tasks.jibDockerBuild
