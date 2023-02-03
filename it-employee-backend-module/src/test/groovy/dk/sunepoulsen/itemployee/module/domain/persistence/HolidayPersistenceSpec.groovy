@@ -1,6 +1,6 @@
 package dk.sunepoulsen.itemployee.module.domain.persistence
 
-
+import dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity
 import dk.sunepoulsen.tes.springboot.rest.logic.exceptions.ResourceNotFoundException
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,14 +39,14 @@ class HolidayPersistenceSpec extends Specification {
 
     void "Create new holiday"() {
         given:
-        dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity entity = new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity(
+            HolidayEntity entity = new HolidayEntity(
                 id: null,
                 name: 'name',
                 date: LocalDate.now()
             )
 
         when:
-            dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity result = holidayPersistence.create(entity)
+            HolidayEntity result = holidayPersistence.create(entity)
 
         then:
             result == holidayRepository.findById(result.id).get()
@@ -54,14 +54,14 @@ class HolidayPersistenceSpec extends Specification {
 
     void "Get all holidays: OK"() {
         given:
-            dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity entity = holidayPersistence.create(new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity(
+            HolidayEntity entity = holidayPersistence.create(new HolidayEntity(
                 id: null,
                 name: 'name',
                 date: LocalDate.now()
             ))
 
         when:
-            Page<dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity> result = holidayPersistence.findAll(PageRequest.of(0, 20))
+            Page<HolidayEntity> result = holidayPersistence.findAll(PageRequest.of(0, 20))
 
         then:
             result.number == 0
@@ -73,14 +73,14 @@ class HolidayPersistenceSpec extends Specification {
 
     void "Get all holidays with sorting: OK"() {
         given:
-            dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity entity = holidayPersistence.create(new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity(
+            HolidayEntity entity = holidayPersistence.create(new HolidayEntity(
                 id: null,
                 name: 'name',
                 date: LocalDate.now()
             ))
 
         when:
-            Page<dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity> result = holidayPersistence.findAll(PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, 'name')))
+            Page<HolidayEntity> result = holidayPersistence.findAll(PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, 'name')))
 
         then:
             result.number == 0
@@ -101,7 +101,7 @@ class HolidayPersistenceSpec extends Specification {
 
     void "Get holiday: Found"() {
         given:
-            dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity entity = holidayPersistence.create(new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity(
+            HolidayEntity entity = holidayPersistence.create(new HolidayEntity(
                 id: null,
                 name: 'name',
                 date: LocalDate.now()
@@ -132,14 +132,14 @@ class HolidayPersistenceSpec extends Specification {
 
     void "Patch holiday: Found"() {
         given:
-            dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity entity = holidayPersistence.create(new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity(
+            HolidayEntity entity = holidayPersistence.create(new HolidayEntity(
                 id: null,
                 name: 'name',
                 date: LocalDate.now()
             ))
 
         expect:
-            holidayPersistence.patch(entity.id, new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity(name: 'new-name')) == new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity(
+            holidayPersistence.patch(entity.id, new HolidayEntity(name: 'new-name')) == new HolidayEntity(
                 id: entity.id,
                 name: 'new-name',
                 date: entity.date
@@ -148,7 +148,7 @@ class HolidayPersistenceSpec extends Specification {
 
     void "Patch holiday: Not found"() {
         when:
-            holidayPersistence.patch(5L, new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity())
+            holidayPersistence.patch(5L, new HolidayEntity())
 
         then:
             ResourceNotFoundException exception = thrown(ResourceNotFoundException)
@@ -167,13 +167,13 @@ class HolidayPersistenceSpec extends Specification {
 
         where:
             _testcase        | _id  | _entity
-            'Id is null'     | null | new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity()
+            'Id is null'     | null | new HolidayEntity()
             'Entity is null' | 5L   | null
     }
 
     void "Delete holiday: Found"() {
         given:
-            dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity entity = holidayPersistence.create(new dk.sunepoulsen.itemployee.module.domain.persistence.model.HolidayEntity(
+            HolidayEntity entity = holidayPersistence.create(new HolidayEntity(
                 id: null,
                 name: 'name',
                 date: LocalDate.now()
