@@ -176,6 +176,8 @@ public class HolidayController {
     {
         try {
             return holidayLogic.patch(id, model);
+        } catch (IllegalArgumentException ex) {
+            throw new ApiBadRequestException("id", ex.getMessage(), ex);
         } catch (LogicException ex) {
             throw ex.mapApiException();
         }
