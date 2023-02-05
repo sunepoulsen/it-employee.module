@@ -12,8 +12,8 @@ logging:
 
 spring:
   datasource:
-    url: 'jdbc:postgresql://postgres:5432/stress-test'
-    username: 'itemployee'
-    password: 'jukilo90'
+    url: 'jdbc:postgresql://postgres:5432/itemployee'
+    username: 'itemployee_adm'
+    password: 'itemployee_adm_jukilo90'
     initialize: false
     driver-class-name: 'org.postgresql.Driver'
