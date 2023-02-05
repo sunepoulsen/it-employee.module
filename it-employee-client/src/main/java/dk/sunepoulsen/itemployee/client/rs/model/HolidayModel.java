@@ -1,5 +1,6 @@
 package dk.sunepoulsen.itemployee.client.rs.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dk.sunepoulsen.tes.rest.models.BaseModel;
 import dk.sunepoulsen.tes.validation.model.OnCrudCreate;
 import dk.sunepoulsen.tes.validation.model.OnCrudRead;
@@ -24,6 +25,7 @@ public class HolidayModel implements BaseModel {
     private String name;
 
     @Schema(description = "The date of the holiday")
+    @JsonFormat(pattern="yyyy-MM-dd")
     @NotNull(groups = {OnCrudCreate.class, OnCrudRead.class})
     private LocalDate date;
 }
