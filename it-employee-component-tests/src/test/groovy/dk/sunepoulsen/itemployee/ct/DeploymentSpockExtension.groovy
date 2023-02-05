@@ -6,15 +6,18 @@ import groovy.sql.Sql
 import groovy.util.logging.Slf4j
 import org.spockframework.runtime.extension.IGlobalExtension
 import org.spockframework.runtime.model.SpecInfo
+import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.Network
+import org.testcontainers.images.builder.Transferable
 import org.testcontainers.utility.DockerImageName
 
 @Slf4j
 class DeploymentSpockExtension implements IGlobalExtension {
-    private static final String PG_DATABASE = 'ct'
-    private static final String PG_USER = 'itemployee-ct'
-    private static final String PG_PASSWORD = 'jukilo90'
+    private static final String PG_IMAGE_TAG = '15.1'
+    private static final String PG_DATABASE = 'itemployee'
+    private static final String PG_USER = 'itemployee_adm'
+    private static final String PG_PASSWORD = 'itemployee_adm_jukilo90'
     private static final String PG_DRIVER = 'org.postgresql.Driver'
 
     private static TESBackendContainer itEmployeeModuleContainer = null
@@ -53,18 +56,18 @@ class DeploymentSpockExtension implements IGlobalExtension {
 
         Network network = Network.newNetwork()
 
-        imageName = DockerImageName.parse('postgres:latest')
+        imageName = DockerImageName.parse("postgres:${PG_IMAGE_TAG}")
         postgresqlContainer = new GenericContainer<>(imageName)
-            .withEnv('POSTGRES_DB', PG_DATABASE)
-            .withEnv('POSTGRES_USER', PG_USER)
             .withEnv('POSTGRES_PASSWORD', PG_PASSWORD)
             .withExposedPorts(5432)
+            .withFileSystemBind('../docker/scripts/postgres/001-create-it-employee-db.sql', '/docker-entrypoint-initdb.d/001-create-it-employee-db.sql', BindMode.READ_ONLY)
             .withNetwork(network)
             .withNetworkAliases('postgres')
         postgresqlContainer.start()
 
         itEmployeeModuleContainer = new TESBackendContainer('it-employee-backend-module', '1.0.0-SNAPSHOT', 'ct')
             .withConfigMapping('application-ct.yml')
+            .dependsOn(postgresqlContainer)
             .withNetwork(network)
         itEmployeeModuleContainer.start()
 

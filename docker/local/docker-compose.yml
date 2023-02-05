@@ -5,9 +5,9 @@ services:
     environment:
       - POSTGRES_PASSWORD=jukilo90
     ports:
-      - "5432"
+      - "20032:5432"
     volumes:
-      - "../scripts/postgres/create-it-employee-db.sql:/docker-entrypoint-initdb.d/create-it-employee-db.sql"
+      - "../scripts/postgres/001-create-it-employee-db.sql:/docker-entrypoint-initdb.d/001-create-it-employee-db.sql"
 
   it-employee-module:
     image: it-employee-backend-module:1.0.0-SNAPSHOT
@@ -15,7 +15,9 @@ services:
       - SPRING_PROFILES_ACTIVE=local
       - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,address=8000,suspend=n,server=y
     ports:
-      - "8080"
-      - "9010"
+      - "20180:8080"
+      - "20110:9010"
     volumes:
       - "./config/application-local.yml:/app/resources/application-local.yml"
+    depends_on:
+      - it-employee-db
