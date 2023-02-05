@@ -7,7 +7,28 @@ services:
     ports:
       - "20032:5432"
     volumes:
+      - "postgres_data:/var/lib/postgresql/data"
       - "../scripts/postgres/001-create-it-employee-db.sql:/docker-entrypoint-initdb.d/001-create-it-employee-db.sql"
+      - "../scripts/postgres/002-create-keycloak-db.sql:/docker-entrypoint-initdb.d/002-create-keycloak-db.sql"
+
+  keycloak-module:
+    image: quay.io/keycloak/keycloak:20.0.3
+    environment:
+      KC_DB: 'postgres'
+      KC_DB_URL: 'jdbc:postgresql://it-employee-db:5432/keycloak'
+      KC_DB_USERNAME: 'keycloak_adm'
+      KC_DB_PASSWORD: 'keycloak_adm_jukilo90'
+      KC_HOSTNAME: 'localhost'
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+      KEYCLOAK_ADMIN: 'admin'
+      KEYCLOAK_ADMIN_PASSWORD: 'jukilo90'
+    command:
+      - "start"
+    ports:
+      - "20180:8080"
+    depends_on:
+      - it-employee-db
 
   it-employee-module:
     image: it-employee-backend-module:1.0.0-SNAPSHOT
@@ -15,9 +36,12 @@ services:
       - SPRING_PROFILES_ACTIVE=local
       - JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,address=8000,suspend=n,server=y
     ports:
-      - "20180:8080"
-      - "20110:9010"
+      - "20280:8080"
+      - "20210:9010"
     volumes:
       - "./config/application-local.yml:/app/resources/application-local.yml"
     depends_on:
       - it-employee-db
+
+volumes:
+  postgres_data:
